@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rendering Local Images Using Flask</title>
+    <style>
+        #imageCanvas {
+            cursor: crosshair;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    {% if img %}
+    <h1>Rendered Image</h1>
+    <div style="display:none;"> 
+        <img src="{{img}}" id="uploaded_image">
+    </div>
+    {% else %}
+    <h1>Image will be render here...</h1>
+    {% endif %}
+
+    <canvas id="imageCanvas">
+    </canvas>
+
+    <script>
+        const canvas = document.getElementById('imageCanvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.getElementById('uploaded_image');
+
+        img.onload = function() {
+            // Set canvas size to match image
+            canvas.width = img.width;
+            canvas.height = img.height;
+            // Draw image on canvas
+            ctx.drawImage(img, 0, 0);
+        }
+
+        const drawBoundingBox = (box) => {
+            ctx.beginPath();
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 10;
+        
+            ctx.rect(
+                box.x,        // x coordinate
+                box.y,        // y coordinate
+                box.width,    // width
+                box.height    // height
+            );
+            ctx.stroke();
+        }
+
+        const sendCoordinates = (x, y) => {
+            fetch('/coordinates', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    x: x,
+                    y: y
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // ctx.drawImage(img, 0, 0);
+                console.log(data)
+                data.forEach(box => {
+                    drawBoundingBox(box);
+                });
+            })
+            .catch((error) => console.error('Error:', error));
+        }
+
+        
+        // Mouse click handler
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor(event.clientX - rect.left);
+            const y = Math.floor(event.clientY - rect.top);
+            
+            console.log(`Clicked at position: (${x}, ${y})`);
+            sendCoordinates(x, y)
+        });
+
+        // Optional: Mouse move handler
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+        });
+    </script> 
+
+</body>
+</html>
