@@ -1,5 +1,5 @@
 # Find the hidden object 
-[![Watch the video](https://img.youtube.com/vi/Omcl_2Z_B0M/hqdefault.jpg)](https://www.youtube.com/embed/Omcl_2Z_B0M)
+[![Watch the video](https://img.youtube.com/vi/hk745rIIRPg/hqdefault.jpg)](https://www.youtube.com/embed/hk745rIIRPg)
 
 
 ## Getting Started
