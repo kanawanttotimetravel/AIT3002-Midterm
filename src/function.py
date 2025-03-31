@@ -8,17 +8,36 @@ from utils import get_bounding_box_from_point, extract_region
 
 def multi_scale_template_matching(image, points, target, all_objects=[], scale_range=(0.2, 1.5), scale_steps=20, threshold=0.8):
     """
-    Perform multi-scale template matching
+    Perform multi-scale template matching to find similar objects in an image.
+    
+    This function extracts a template from the source image using the provided points,
+    then searches for similar patterns within the target region at different scales.
+    It applies template matching using normalized cross-correlation and handles
+    bright regions by replacing them with mean intensity.
     
     Args:
-        image: Source image to search in
-        template: Template image to search for
-        scale_range: Tuple of (min_scale, max_scale)
-        scale_steps: Number of scales to try
-        threshold: Matching threshold (0-1)
+        image (numpy.ndarray): Source image to search in
+        points (tuple): (x, y) coordinates where the template should be extracted
+        target (tuple): Bounding box (x, y, w, h) of the region to search in
+        all_objects (list, optional): List of pre-computed object bounding boxes.
+            Defaults to empty list.
+        scale_range (tuple, optional): (min_scale, max_scale) for template resizing.
+            Defaults to (0.2, 1.5).
+        scale_steps (int, optional): Number of different scales to try.
+            Defaults to 20.
+        threshold (float, optional): Matching confidence threshold (0-1).
+            Defaults to 0.8.
     
     Returns:
-        list of (x, y, scale, confidence) for matches above threshold
+        list: List of dictionaries containing match information:
+            {
+                'x': int,          # x coordinate of match
+                'y': int,          # y coordinate of match
+                'scale': float,    # scale factor of match
+                'confidence': float,# matching confidence score
+                'width': int,      # width of matched region
+                'height': int      # height of matched region
+            }
     """
     # Convert images to grayscale
     if len(image.shape) == 3:
@@ -87,7 +106,27 @@ def multi_scale_template_matching(image, points, target, all_objects=[], scale_r
 
 def non_max_suppression(matches, overlap_thresh=0.3):
     """
-    Apply non-maximum suppression to remove overlapping matches
+    Apply non-maximum suppression to remove overlapping matches.
+    
+    This function eliminates redundant overlapping detections by keeping only
+    the highest confidence match in areas where multiple detections overlap
+    more than the specified threshold.
+    
+    Args:
+        matches (list): List of dictionaries containing match information:
+            {
+                'x': int,          # x coordinate of match
+                'y': int,          # y coordinate of match
+                'width': int,      # width of matched region
+                'height': int,     # height of matched region
+                'confidence': float # matching confidence score
+            }
+        overlap_thresh (float, optional): Maximum allowed overlap ratio between
+            boxes (0-1). Defaults to 0.3.
+    
+    Returns:
+        list: Filtered list of matches with overlapping detections removed,
+            maintaining the same dictionary structure as input
     """
     if not matches:
         return []

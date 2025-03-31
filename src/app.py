@@ -19,16 +19,41 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 
 def allowed_file(filename):
+    """
+    Check if the uploaded file has an allowed extension.
+    
+    Args:
+        filename (str): Name of the file to check
+        
+    Returns:
+        bool: True if file extension is allowed, False otherwise
+    """
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/', methods=['GET'])
 def render_upload():
+    """
+    Render the initial upload page.
+    
+    Returns:
+        str: Rendered HTML template for file upload
+    """
     return render_template('upload_image.html')
 
 @app.route('/', methods=['POST'])
 def upload_file():
+    """
+    Handle file upload POST request.
+    
+    Validates the uploaded file, saves it to the upload folder,
+    processes the image to detect objects, and renders the result.
+    
+    Returns:
+        str: Rendered template with uploaded image on success
+        tuple: Error message and HTTP status code on failure
+    """
     if 'file' not in request.files:
         return 'No file part', 400
     
@@ -55,6 +80,30 @@ def upload_file():
 
 @app.route('/coordinates', methods=['POST'])
 def handle_coordinates():
+    """
+    Process clicked coordinates on the image and find matching objects.
+    
+    Receives x,y coordinates from a client-side click event,
+    performs multi-scale template matching to find similar objects,
+    and returns bounding boxes for the source and target objects.
+    
+    Returns:
+        Response: JSON containing source and target bounding boxes
+            Format: [
+                {
+                    'x': int,
+                    'y': int,
+                    'width': int,
+                    'height': int
+                },
+                {
+                    'x': int,
+                    'y': int,
+                    'width': int,
+                    'height': int
+                }
+            ]
+    """
     data = request.get_json()
     x = data.get('x')
     y = data.get('y')
