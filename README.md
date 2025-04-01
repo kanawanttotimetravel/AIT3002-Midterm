@@ -1,4 +1,6 @@
 # Find the hidden object 
+## Video demo
+### TODO: This demo only shows the most simple functionalities, further improvement is required in the future
 [![Watch the video](https://img.youtube.com/vi/hk745rIIRPg/hqdefault.jpg)](https://www.youtube.com/embed/hk745rIIRPg)
 
 
